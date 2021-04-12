@@ -53,9 +53,9 @@ type Foci interface {
 
 func NewFoci(name string) Foci {
 	fc := Asset{}
-	fc.Name = name
+	fc.AssetName = name
 	if strings.Contains(name, Specialist) || strings.Contains(name, DevelopedAttribute) {
-		fc.Name = name + " (not implemented fully)"
+		fc.AssetName = name + " (not implemented fully)"
 	}
 	fc.Rank = 1
 	fc.Bonus = acquisitionBonusSkill(name)
@@ -78,7 +78,7 @@ func (a *Asset) UpgradeFoci() {
 }
 
 func (a *Asset) NameFoci() string {
-	return a.Name + " (lvl. " + strconv.Itoa(a.Rank) + ")"
+	return a.AssetName + " (lvl. " + strconv.Itoa(a.Rank) + ")"
 }
 
 func acquisitionBonusSkill(fociName string) string {

@@ -6,10 +6,11 @@ const (
 	TypeBackground = 3
 	TypeClass      = 4
 	TypeFoci       = 5
+	TypeTradition  = 6
 )
 
 type Asset struct {
-	Name          string
+	AssetName     string
 	Group         int
 	Rank          int
 	LearningCost  int
@@ -21,10 +22,14 @@ type Asset struct {
 
 func New(assetType int, name string) Asset {
 	a := Asset{}
-	a.Name = name
+	a.AssetName = name
 	a.Group = assetType
 	a.Description = callDescription(name)
 	return a
+}
+
+func (a *Asset) Name() string {
+	return a.AssetName
 }
 
 func callDescription(name string) string {

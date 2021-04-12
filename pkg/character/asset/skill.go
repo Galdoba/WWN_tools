@@ -30,6 +30,6 @@ func (a *Asset) SetLevel(nl int) {
 func NewSkill(name string) Skill {
 	skl := Asset{}
 	skl.Group = TypeSkill
-	skl.Name = name
+	skl.AssetName = name
 	return &skl
 }

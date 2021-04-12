@@ -52,10 +52,20 @@ func main() {
 				fmt.Println("Step 7")
 				chr.SetFoci()
 				fmt.Println(chr.Sheet())
+				fmt.Println("Step 8")
+				fmt.Println("Special origins not implemented")
+				fmt.Println("SKIP")
+				fmt.Println(chr.Sheet())
 				fmt.Println("Step 9")
 				fmt.Println("Pick one skill of your choice to reflect your\nhero’s outside interests, natural talents, hobby expertise,\nor other personal focus.")
 				chr.Train("Any Skill")
 				fmt.Println(chr.Sheet())
+				fmt.Println("Step 10")
+				chr.SetMagicTraditions()
+				fmt.Println(chr.Sheet())
+				fmt.Println("Step 11")
+				fmt.Println(". . .")
+				fmt.Println("Stop Action")
 
 				return nil
 			},

@@ -73,7 +73,12 @@ const (
 	AdventurerEM = "Adventurer (em)"
 	AdventurerMW = "Adventurer (mw)"
 	//FOCI
-
+	//TRADITIONS
+	HighMage     = "Partial High Mage"
+	Elementalist = "Partial Elementalist"
+	Necromancer  = "Partial Necromancer"
+	Healer       = "Healer"
+	Vowed        = "Vowed"
 )
 
 type Character struct {
@@ -85,6 +90,7 @@ type Character struct {
 	Skill      map[string]asset.Skill
 	Class      asset.Class
 	Foci       map[string]asset.Foci
+	Tradition  asset.Tradition
 	//Background
 }
 
@@ -260,7 +266,7 @@ func (chr *Character) SetClass() {
 func (chr *Character) SetFoci() {
 	chr.Foci = make(map[string]asset.Foci)
 	fociExpected := []string{"Any"}
-	switch chr.Class.NameClass() { //TODO: тутже добавдять фокусы за уровни
+	switch chr.Class.Name() { //TODO: тутже добавдять фокусы за уровни
 	case Warrior:
 		fociExpected = append(fociExpected, Warrior)
 	case Expert:
@@ -302,6 +308,58 @@ func (chr *Character) SetFoci() {
 		fmt.Println(chr.Sheet())
 	}
 
+}
+
+////////////////////////MAGIC
+
+func (chr *Character) SetMagicTraditions() {
+	mtp := 0
+	switch chr.Class.Name() {
+	case Mage:
+		mtp = 2
+	case AdventurerEM, AdventurerMW:
+		mtp = 1
+	}
+	traditionsPicked := []string{}
+	for mtp > 0 {
+		if mtp == 2 {
+			fmt.Println("As a Full Mage you can select two traditions. Picking the same tradions twise will boost it's effect...")
+		}
+		options := traditionsListDynamic(mtp)
+		switch chr.FlagAuto {
+		case true:
+			traditionsPicked = append(traditionsPicked, chr.Dice.RollFromList(options))
+		case false:
+			chosen := chooseOption("Select tradition:", options)
+			traditionsPicked = append(traditionsPicked, options[chosen])
+		}
+		mtp--
+	}
+	if len(traditionsPicked) == 0 {
+		return
+	}
+	chr.Tradition = asset.NewTradition(traditionsPicked)
+}
+
+func traditionsListDynamic(mtpLeft int) []string {
+	switch mtpLeft {
+	default:
+		return []string{"ERROR"}
+	case 2:
+		return []string{
+			HighMage,
+			Elementalist,
+			Necromancer,
+		}
+	case 1:
+		return []string{
+			HighMage,
+			Elementalist,
+			Necromancer,
+			Healer,
+			Vowed,
+		}
+	}
 }
 
 ////////////////////////HELPERS

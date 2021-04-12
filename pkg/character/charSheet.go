@@ -53,7 +53,7 @@ func (chr *Character) Sheet() string {
 	}
 	if chr.Background != nil {
 		str += "---------------------------\n"
-		str += "BACKGROUND      : " + chr.Background.NameBKG() + "\n"
+		str += "BACKGROUND      : " + chr.Background.Name() + "\n"
 	}
 	if len(chr.Skill) > 0 {
 		str += "---------------------------\n"
@@ -71,7 +71,7 @@ func (chr *Character) Sheet() string {
 	}
 	if chr.Class != nil {
 		str += "---------------------------\n"
-		str += "CLASS           : " + chr.Class.NameClass() + "\n"
+		str += "CLASS           : " + chr.Class.Name() + "\n"
 		for _, val := range chr.Class.AvailableAbbilities() {
 			str += "   " + val + "\n"
 		}
@@ -84,6 +84,11 @@ func (chr *Character) Sheet() string {
 				str += "   " + val.NameFoci() + "\n"
 			}
 		}
+	}
+	if chr.Tradition != nil {
+		str += "---------------------------\n"
+		str += "MAGIC TRADITION:\n"
+		str += "   " + chr.Tradition.Name() + "\n"
 	}
 	str += "---------------------------\n\n"
 	return str

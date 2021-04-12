@@ -2,21 +2,21 @@ package asset
 
 type Class interface {
 	AvailableAbbilities() []string
-	NameClass() string
+	Name() string
 }
 
 func NewClass(className string) Class {
 	cls := Asset{}
 	cls.Group = TypeClass
-	cls.Name = className
+	cls.AssetName = className
 	return &cls
 }
 
 func (a *Asset) AvailableAbbilities() []string {
 	abbi := []string{}
-	switch a.Name {
+	switch a.AssetName {
 	default:
-		panic("unknown class detected '" + a.Name + "'")
+		panic("unknown class detected '" + a.AssetName + "'")
 	case "Warrior":
 		abbi = append(abbi, "Killing Blow")
 		abbi = append(abbi, "Veteran’s Luck")
@@ -35,10 +35,6 @@ func (a *Asset) AvailableAbbilities() []string {
 
 	}
 	return abbi
-}
-
-func (a *Asset) NameClass() string {
-	return a.Name
 }
 
 func (a *Asset) HitDice(lvl int) string {

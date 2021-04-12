@@ -3,7 +3,7 @@ package asset
 import "strconv"
 
 type Background interface {
-	NameBKG() string
+	Name() string
 	FreeSkill() string
 	QuickSkills() []string
 	Growth() []string
@@ -14,16 +14,12 @@ type Background interface {
 func NewBackground(name string) Background {
 	bkg := Asset{}
 	bkg.Group = TypeAttribute
-	bkg.Name = name
+	bkg.AssetName = name
 	return &bkg
 }
 
-func (a *Asset) NameBKG() string {
-	return a.Name
-}
-
 func (a *Asset) FreeSkill() string {
-	switch a.Name {
+	switch a.AssetName {
 	default:
 		return "ERROR"
 	case "Artisan":
@@ -70,7 +66,7 @@ func (a *Asset) FreeSkill() string {
 }
 
 func (a *Asset) QuickSkills() []string {
-	switch a.Name {
+	switch a.AssetName {
 	default:
 		return []string{"ERROR"}
 	case "Artisan":
@@ -177,7 +173,7 @@ func (a *Asset) QuickSkills() []string {
 }
 
 func (a *Asset) Growth() []string {
-	switch a.Name {
+	switch a.AssetName {
 	default:
 		return []string{"ERROR"}
 	case "Artisan":
@@ -364,7 +360,7 @@ func (a *Asset) Growth() []string {
 }
 
 func (a *Asset) Learning() []string {
-	switch a.Name {
+	switch a.AssetName {
 	default:
 		return []string{"ERROR"}
 	case "Artisan":

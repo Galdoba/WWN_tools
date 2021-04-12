@@ -9,7 +9,7 @@ type Attribute interface {
 func NewAttribute(name string) Attribute {
 	atr := Asset{}
 	atr.Group = TypeAttribute
-	atr.Name = name
+	atr.AssetName = name
 	atr.BonusScore = make(map[string]int)
 	atr.BonusModifier = make(map[string]int)
 	return &atr
