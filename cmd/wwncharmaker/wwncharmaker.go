@@ -13,7 +13,7 @@ func main() {
 	//chr := character.New(true)
 	//fmt.Println(chr.Sheet())
 	app := cli.NewApp()
-	app.Version = "v 0.0.3"
+	app.Version = "v 0.0.4"
 	app.Name = "wwncharmaker"
 	app.Usage = "Создает персонажей для World Without Number в ручном и автоматическом режимах"
 	app.Flags = []cli.Flag{
