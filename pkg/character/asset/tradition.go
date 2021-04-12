@@ -12,6 +12,7 @@ const (
 
 type Tradition interface {
 	Name() string
+	AvailableSpells(lvl int) []string
 }
 
 func NewTradition(names []string) Tradition {
@@ -31,9 +32,12 @@ func NewTradition(names []string) Tradition {
 	return &trd
 }
 
-func selectTradition(mtp int) []string {
-	trdName := []string{}
-	return trdName
+func (a *Asset) AvailableSpells(level int) []string {
+	spells := []string{}
+	if strings.Contains(a.AssetName, "High Mage") {
+
+	}
+	return spells
 }
 
 // func mageChoice() string {

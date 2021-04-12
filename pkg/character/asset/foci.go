@@ -30,7 +30,7 @@ const (
 	Polymath           = "Polymath"
 	Rider              = "Rider"
 	ShockingAssault    = "Shocking Assault"
-	SnipersEye         = "Sniper’s Eye"
+	SnipersEye         = "Sniper's Eye"
 	SpecialOrigin      = "Special Origin"
 	Specialist         = "Specialist"
 	SpiritFamiliar     = "Spirit Familiar"

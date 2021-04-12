@@ -98,7 +98,7 @@ func (chr *Character) handleSpecial(spec string) []string {
 		case true:
 			addon = append(addon, chr.Dice.RollFromList(skillsOption))
 		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption) + 1
+			pick := chooseOption("Choose bonus skill:", skillsOption)
 			addon = append(addon, skillsOption[pick])
 		}
 		return addon
@@ -108,7 +108,7 @@ func (chr *Character) handleSpecial(spec string) []string {
 		case true:
 			addon = append(addon, chr.Dice.RollFromList(skillsOption))
 		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption) + 1
+			pick := chooseOption("Choose bonus skill:", skillsOption)
 			addon = append(addon, skillsOption[pick])
 		}
 	case "Specialist":
@@ -117,7 +117,7 @@ func (chr *Character) handleSpecial(spec string) []string {
 		case true:
 			addon = append(addon, chr.Dice.RollFromList(skillsOption))
 		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption) + 1
+			pick := chooseOption("Choose bonus skill:", skillsOption)
 			addon = append(addon, skillsOption[pick])
 		}
 		return addon

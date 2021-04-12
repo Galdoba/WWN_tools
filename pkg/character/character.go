@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/Galdoba/WWN_tools/pkg/character/asset"
 	"github.com/Galdoba/WWN_tools/pkg/dice"
@@ -82,6 +83,8 @@ const (
 )
 
 type Character struct {
+	Name       string
+	Race       string
 	FlagAuto   bool
 	Dice       *dice.Dicepool
 	Level      int
@@ -100,7 +103,12 @@ func New(auto bool, seed ...string) Character {
 	chr.Dice = dice.New()
 	if len(seed) > 0 {
 		chr.Dice.SetSeed(seed[0])
+		chr.Name = seed[0]
 	}
+	if chr.Name == "" {
+		chr.Name = "Unknown Hero"
+	}
+	chr.Race = "Human"
 	chr.Level = 1
 	return chr
 }
@@ -339,6 +347,9 @@ func (chr *Character) SetMagicTraditions() {
 		return
 	}
 	chr.Tradition = asset.NewTradition(traditionsPicked)
+	if strings.Contains(chr.Tradition.Name(), HighMage) {
+		chr.Train(Magic)
+	}
 }
 
 func traditionsListDynamic(mtpLeft int) []string {
@@ -489,7 +500,7 @@ func allFociList() []string {
 		"Polymath",
 		"Rider",
 		"Shocking Assault",
-		"Sniper’s Eye",
+		"Sniper's Eye",
 		"Special Origin",
 		"Specialist",
 		"Spirit Familiar",
@@ -514,7 +525,7 @@ func warriorFociList() []string {
 		"Impervious Defense",
 		"Rider",
 		"Shocking Assault",
-		"Sniper’s Eye",
+		"Sniper's Eye",
 		"Unarmed Combatant",
 		"Valiant Defender",
 		"Whirlwind Assault",

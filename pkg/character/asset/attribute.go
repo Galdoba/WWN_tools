@@ -20,12 +20,6 @@ func (a *Asset) Score() int {
 	if a.Rank == 0 {
 		return 0
 	}
-	if a.Rank < 3 {
-		base = 3
-	}
-	if a.Rank > 18 {
-		base = 18
-	}
 	for _, val := range a.BonusScore {
 		base += val
 	}
