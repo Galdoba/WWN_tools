@@ -9,6 +9,8 @@ import (
 
 	"github.com/Galdoba/WWN_tools/pkg/character/asset"
 	"github.com/Galdoba/WWN_tools/pkg/dice"
+	"github.com/Galdoba/WWN_tools/pkg/magic"
+	"github.com/Galdoba/utils"
 
 	"github.com/Galdoba/devtools/cli/user"
 )
@@ -347,10 +349,38 @@ func (chr *Character) SetMagicTraditions() {
 		return
 	}
 	chr.Tradition = asset.NewTradition(traditionsPicked)
+	avalableSpells := []string{}
 	if strings.Contains(chr.Tradition.Name(), HighMage) {
 		chr.Train(Magic)
+		traditionSpells := magic.FilterSpellsByTradition("High Mage", 1)
+		for _, sp := range traditionSpells {
+			utils.AppendUniqueStr(avalableSpells, sp)
+		}
 	}
 }
+
+/*
+switch Tradition {
+case Full High Mage:
+	add full bonus
+case Full Elementalist:
+	add full bonus
+case Full Necromancer:
+	add full bonus
+default:
+	if Tradition Contains {
+		add partial bonus
+	}
+}
+learn spells:
+for i := 0; i < chr.Level {
+	maxLevel := from chr.Level and Tradition
+	constructList(Tradition)
+	pick := from chr.Tradition
+
+}
+
+*/
 
 func traditionsListDynamic(mtpLeft int) []string {
 	switch mtpLeft {

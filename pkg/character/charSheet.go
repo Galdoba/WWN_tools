@@ -1,11 +1,8 @@
 package character
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
-
-	"github.com/Galdoba/WWN_tools/pkg/magic"
 )
 
 /*
@@ -28,11 +25,11 @@ ________________________________________| CHA :
 
 */
 func (chr *Character) Sheet() string {
-	spells := magic.Spells("Any", 2)
-	for i := range spells {
-		fmt.Println(spells[i].Tradition, spells[i].Level, spells[i].Name)
-	}
-	panic(5)
+	// spells := magic.Spells("Any", 2)
+	// for i := range spells {
+	// 	fmt.Println(spells[i].Tradition, spells[i].Level, spells[i].Name)
+	// }
+	// panic(5)
 	clearTerm()
 	return chr.StatBlock()
 
@@ -234,6 +231,9 @@ func (chr *Character) onSheetMagic() string {
 }
 
 func (chr *Character) artSpellTable() []string {
+	if chr.Tradition == nil {
+		return []string{}
+	}
 	artList := []string{}
 	artList = append(artList, "Art 1")
 	artList = append(artList, "Art 2")
@@ -250,14 +250,14 @@ func (chr *Character) artSpellTable() []string {
 		max = len(spellList)
 	}
 	for len(artList) < max {
-		artList = append(artList, "---")
+		artList = append(artList, " ")
 	}
 	for len(spellList) < max {
-		spellList = append(spellList, "---")
+		spellList = append(spellList, " ")
 	}
-	table := []string{}
+	table := []string{"---ARTS------------------------------+---SPELLS----------------------------"}
 	for i := 0; i < max; i++ {
-		table = append(table, artList[i]+"|||"+spellList[i])
+		table = append(table, trimToLen(artList[i], 36)+" | "+trimToLen(spellList[i], 36))
 	}
 	return table
 }

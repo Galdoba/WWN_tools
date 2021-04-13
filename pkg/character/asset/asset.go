@@ -10,14 +10,16 @@ const (
 )
 
 type Asset struct {
-	AssetName     string
-	Group         int
-	Rank          int
-	LearningCost  int
-	BonusScore    map[string]int
-	BonusModifier map[string]int
-	Description   string
-	Bonus         string
+	AssetName       string
+	Group           int
+	Rank            int
+	LearningCost    int
+	BonusScore      map[string]int
+	BonusModifier   map[string]int
+	Description     string
+	Bonus           string
+	AssosiatedList1 []string
+	AssosiatedList2 []string
 }
 
 func New(assetType int, name string) Asset {

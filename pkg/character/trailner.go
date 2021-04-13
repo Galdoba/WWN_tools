@@ -14,7 +14,7 @@ func (chr *Character) Train(skl string) {
 		fmt.Println("Train ", skl)
 		if _, ok := chr.Skill[skl]; !ok {
 			chr.Skill[skl] = asset.NewSkill(skl)
-			fmt.Println(chr.Sheet())
+			fmt.Print(chr.Sheet())
 			return
 		}
 		if chr.Skill[skl].Level() >= 1 {
@@ -22,19 +22,19 @@ func (chr *Character) Train(skl string) {
 			return
 		}
 		chr.Skill[skl].SetLevel(chr.Skill[skl].Level() + 1)
-		fmt.Println(chr.Sheet())
+		fmt.Print(chr.Sheet())
 		return
 	}
 	if isAttribute(skl) {
 		chr.Attribute[skl].SetScore(chr.Attribute[skl].Score() + 1)
-		fmt.Println(chr.Sheet())
+		fmt.Print(chr.Sheet())
 		return
 	}
 	expanded := chr.handleSpecial(skl)
 	for _, skl := range expanded {
 		chr.Train(skl)
 	}
-	//fmt.Println(chr.Sheet())
+	//fmt.Print(chr.Sheet())
 }
 
 func (chr *Character) handleSpecial(spec string) []string {
