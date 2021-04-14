@@ -235,16 +235,13 @@ func (chr *Character) artSpellTable() []string {
 		return []string{}
 	}
 	artList := []string{}
-	artList = append(artList, "Art 1")
-	artList = append(artList, "Art 2")
-	artList = append(artList, "Art 3")
-	artList = append(artList, "Art 4")
-	artList = append(artList, "Art 5")
-	artList = append(artList, "Art 6")
+	for _, val := range chr.Tradition.AvailableArts() {
+		artList = append(artList, val)
+	}
 	spellList := []string{}
-	spellList = append(spellList, "Spell 1")
-	spellList = append(spellList, "Spell 2")
-	spellList = append(spellList, "Spell 3")
+	for _, val := range chr.Tradition.AvailableSpells() {
+		spellList = append(spellList, val)
+	}
 	max := len(artList)
 	if len(spellList) > max {
 		max = len(spellList)

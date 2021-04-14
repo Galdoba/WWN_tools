@@ -10,7 +10,6 @@ import (
 	"github.com/Galdoba/WWN_tools/pkg/character/asset"
 	"github.com/Galdoba/WWN_tools/pkg/dice"
 	"github.com/Galdoba/WWN_tools/pkg/magic"
-	"github.com/Galdoba/utils"
 
 	"github.com/Galdoba/devtools/cli/user"
 )
@@ -77,11 +76,15 @@ const (
 	AdventurerMW = "Adventurer (mw)"
 	//FOCI
 	//TRADITIONS
-	HighMage     = "Partial High Mage"
-	Elementalist = "Partial Elementalist"
-	Necromancer  = "Partial Necromancer"
-	Healer       = "Healer"
-	Vowed        = "Vowed"
+	DualMage         = "Dual Mage"
+	FullHighMage     = "Full High Mage"
+	FullElementalist = "Full Elementalist"
+	FullNecromancer  = "Full Necromancer"
+	HighMage         = "Partial High Mage"
+	Elementalist     = "Partial Elementalist"
+	Necromancer      = "Partial Necromancer"
+	Healer           = "Healer"
+	Vowed            = "Vowed"
 )
 
 type Character struct {
@@ -349,15 +352,66 @@ func (chr *Character) SetMagicTraditions() {
 		return
 	}
 	chr.Tradition = asset.NewTradition(traditionsPicked)
-	avalableSpells := []string{}
-	if strings.Contains(chr.Tradition.Name(), HighMage) {
+	chr.benefitFromTraditions()
+}
+
+func (chr *Character) maxLevelSpell() int {
+	if chr.Tradition == nil {
+		return 0
+	}
+	switch chr.Tradition.SATable() {
+	case "FHM", "FEM", "FNM":
+		return ((chr.Level - 1) / 2) + 1
+	case "PHM", "PEM", "PNM":
+		return ((chr.Level - 1) / 4) + 1
+
+	}
+	if chr.Tradition.DualMage() {
+		return ((chr.Level - 1) / 3) + 1
+	}
+	return 0
+}
+
+func (chr *Character) benefitFromTraditions() {
+	maxLevel := chr.maxLevelSpell()
+	if strings.Contains(chr.Tradition.Name(), "High Mage") {
 		chr.Train(Magic)
-		traditionSpells := magic.FilterSpellsByTradition("High Mage", 1)
-		for _, sp := range traditionSpells {
-			utils.AppendUniqueStr(avalableSpells, sp)
-		}
+		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
+		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList)) // TODO: избавиться от повторов
+		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+	}
+	if strings.Contains(chr.Tradition.Name(), "Elementalist") {
+		chr.Train(Magic)
+		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
+		spellList = append(spellList, magic.FilterSpellsByTradition(magic.TraditionElementalist, maxLevel)...)
+		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+		chr.Tradition.AddArt("Elemental Resilence")
+		chr.Tradition.AddArt("Elemental Sparks")
+	}
+	if strings.Contains(chr.Tradition.Name(), "Necromancer") {
+		chr.Train(Magic)
+		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
+		spellList = append(spellList, magic.FilterSpellsByTradition(magic.TraditionNecromancer, maxLevel)...)
+		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+	}
+	if strings.Contains(chr.Tradition.Name(), "Healer") {
+		chr.Train(Heal)
+		chr.Tradition.AddArt("Healing Touch")
+	}
+	if strings.Contains(chr.Tradition.Name(), "Vowed") {
+		chr.Train("Non-Combat")
+		chr.Tradition.AddArt("Martial Style")
+		chr.Tradition.AddArt("Unarmed Might")
+		chr.Tradition.AddArt("Unarmored Defense")
 	}
 }
+
+/*
+для заклинаний:
+смотрим уровень
+смотрим традицию
+по каждой найденной традиции учим n заклинаний из списка доступных
+*/
 
 /*
 switch Tradition {

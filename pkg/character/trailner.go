@@ -1,9 +1,11 @@
 package character
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Galdoba/WWN_tools/pkg/character/asset"
+	"github.com/Galdoba/WWN_tools/pkg/magic"
 )
 
 func (chr *Character) Train(skl string) {
@@ -51,6 +53,22 @@ func (chr *Character) handleSpecial(spec string) []string {
 		}
 		choise := chooseOption("'Any Combat' - pick one:", anyCombatList)
 		addon = append(addon, anyCombatList[choise])
+		return addon
+	case "Non-Combat":
+		nonCombatList := []string{}
+		for _, val := range allSkills() {
+			switch val {
+			case "Stab", "Shoot", "Punch":
+				continue
+			}
+			nonCombatList = append(nonCombatList, val)
+		}
+		if automod {
+			addon = append(addon, chr.Dice.RollFromList(nonCombatList))
+			return addon
+		}
+		choise := chooseOption("'Non-Combat' - pick one:", nonCombatList)
+		addon = append(addon, nonCombatList[choise])
 		return addon
 	case "Any Skill":
 		if automod {
@@ -151,4 +169,23 @@ func pickValid(fullList []string) []string {
 		}
 	}
 	return picked
+}
+
+func (chr *Character) LearnSpell(spellName string) error {
+	if chr.Tradition == nil {
+		return errors.New("tradition not picked")
+	}
+	if chr.Class == nil {
+		return errors.New("class not picked")
+	}
+	switch chr.Class.Name() {
+	case Warrior, Expert, AdventurerEW:
+		return errors.New("character unable to cast spells")
+	}
+	spell, err := magic.Grimoire(spellName)
+	if err != nil {
+		return err
+	}
+	chr.Tradition.AddSpell(spell.Name)
+	return nil
 }

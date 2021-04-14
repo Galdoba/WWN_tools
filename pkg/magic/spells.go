@@ -1,9 +1,21 @@
 package magic
 
+import (
+	"errors"
+	"sort"
+	"strings"
+)
+
 const (
 	TraditionHighMagic    = "High Magic"
 	TraditionElementalist = "Elementalist"
 	TraditionNecromancer  = "Necromancer"
+
+	HighMage     = 1
+	Elementalist = 2
+	Necromancer  = 3
+	Healer       = 4
+	Vowed        = 5
 )
 
 type Spell struct {
@@ -67,21 +79,21 @@ func allSpells() map[int]Spell {
 	spMap[49] = Spell{TraditionHighMagic, 5, "The Earth as Clay", ""}
 	spMap[50] = Spell{TraditionHighMagic, 5, "Invocation of the Invincible Citadel", ""}
 	spMap[51] = Spell{TraditionHighMagic, 5, "Open the High Road", ""}
-	spMap[52] = Spell{TraditionElementalist, 1, "Aqueous Harmony Level", ""}
-	spMap[53] = Spell{TraditionElementalist, 1, "Flame Scrying Level", ""}
-	spMap[54] = Spell{TraditionElementalist, 1, "Elemental Favor Level", ""}
-	spMap[55] = Spell{TraditionElementalist, 1, "Elemental Spy Level", ""}
-	spMap[56] = Spell{TraditionElementalist, 2, "Boreal Wings Level", ""}
-	spMap[57] = Spell{TraditionElementalist, 2, "The Burrower Below Level", ""}
-	spMap[58] = Spell{TraditionElementalist, 2, "Flame Without End Level", ""}
-	spMap[59] = Spell{TraditionElementalist, 2, "Pact of Stone and Sea Level", ""}
-	spMap[60] = Spell{TraditionElementalist, 3, "Elemental Vallation Level", ""}
-	spMap[61] = Spell{TraditionElementalist, 3, "Like the Stones Level", ""}
-	spMap[62] = Spell{TraditionElementalist, 3, "Wind Walking Level", ""}
-	spMap[63] = Spell{TraditionElementalist, 4, "Calcifying Scourge Level", ""}
-	spMap[64] = Spell{TraditionElementalist, 4, "Elemental Guardian Level", ""}
-	spMap[65] = Spell{TraditionElementalist, 5, "Fury of the Elements Level", ""}
-	spMap[66] = Spell{TraditionElementalist, 5, "Tremors of the Depths Level", ""}
+	spMap[52] = Spell{TraditionElementalist, 1, "Aqueous Harmony", ""}
+	spMap[53] = Spell{TraditionElementalist, 1, "Flame Scrying", ""}
+	spMap[54] = Spell{TraditionElementalist, 1, "Elemental Favor", ""}
+	spMap[55] = Spell{TraditionElementalist, 1, "Elemental Spy", ""}
+	spMap[56] = Spell{TraditionElementalist, 2, "Boreal Wings", ""}
+	spMap[57] = Spell{TraditionElementalist, 2, "The Burrower Below", ""}
+	spMap[58] = Spell{TraditionElementalist, 2, "Flame Without End", ""}
+	spMap[59] = Spell{TraditionElementalist, 2, "Pact of Stone and Sea", ""}
+	spMap[60] = Spell{TraditionElementalist, 3, "Elemental Vallation", ""}
+	spMap[61] = Spell{TraditionElementalist, 3, "Like the Stones", ""}
+	spMap[62] = Spell{TraditionElementalist, 3, "Wind Walking", ""}
+	spMap[63] = Spell{TraditionElementalist, 4, "Calcifying Scourge", ""}
+	spMap[64] = Spell{TraditionElementalist, 4, "Elemental Guardian", ""}
+	spMap[65] = Spell{TraditionElementalist, 5, "Fury of the Elements", ""}
+	spMap[66] = Spell{TraditionElementalist, 5, "Tremors of the Depths", ""}
 	spMap[67] = Spell{TraditionNecromancer, 1, "Command the Dead", ""}
 	spMap[68] = Spell{TraditionNecromancer, 1, "Query the Skull", ""}
 	spMap[69] = Spell{TraditionNecromancer, 1, "Smite the Dead", ""}
@@ -99,6 +111,16 @@ func allSpells() map[int]Spell {
 	spMap[81] = Spell{TraditionNecromancer, 5, "Call of the Tomb", ""}
 	spMap[82] = Spell{TraditionNecromancer, 5, "Everlasting", ""}
 	return spMap
+}
+
+func Grimoire(spellName string) (Spell, error) {
+	sp := Spell{}
+	for _, v := range allSpells() {
+		if v.Name == spellName {
+			return v, nil
+		}
+	}
+	return sp, errors.New("spell '" + spellName + "' not found in Grimoire")
 }
 
 func FilterSpellsByTradition(tradition string, maxLevel int) []string {
@@ -121,3 +143,68 @@ func FilterSpellsByTradition(tradition string, maxLevel int) []string {
 	}
 	return spells
 }
+
+func SpellsArtsGaned(tradition string, level int) (int, []string) {
+
+	return 0, []string{}
+}
+
+func GrowthTable(tradition string) ([]int, []string) {
+	maxLvl := []int{}
+	artsGained := []string{}
+	trad := strings.Split(tradition, "/")
+	sort.Sort(sort.StringSlice(trad))
+	traditionSorted := strings.Join(trad, "/")
+	traditionSorted = strings.TrimSuffix(traditionSorted, "/")
+	switch traditionSorted {
+	default:
+		panic("UNKNOWN TRADITION: '" + tradition + "'")
+	case "Full High Mage":
+		maxLvl = []int{1, 1, 2, 2, 3, 3, 4, 4, 5, 5}
+		artsGained = []string{"Any Two", "Any One", "", "Any One", "", "Any One", "", "Any One", "", "Any One"}
+
+	}
+	return maxLvl, artsGained
+}
+
+func MaxLevelSpellArt(table string) []int {
+	levels := []int{0}
+	switch table {
+	default:
+		return []int{}
+	case "FHM":
+		levels = append(levels, []int{1, 1, 2, 2, 3, 3, 4, 4, 5, 5}...)
+	case "FEM":
+		levels = append(levels, []int{}...)
+	case "FNM":
+		levels = append(levels, []int{}...)
+	case "DMT":
+		levels = append(levels, []int{}...)
+	case "PHM":
+		levels = append(levels, []int{1, 1, 1, 1, 2, 2, 2, 2, 3, 3}...)
+	case "PEM":
+		levels = append(levels, []int{}...)
+	case "PNM":
+		levels = append(levels, []int{}...)
+	case "NT":
+	}
+	return levels
+}
+
+// M 11 = Full High Mage  --  1F
+// M 12 = Partial High Mage/Partial Elementalist  --  1P
+// M 13 = Partial High Mage/Partial Necromancer  --  1P
+// M 14 = Partial High Mage/Healer  --  1P
+// M 15 = Partial High Mage/Vowed  --  1P
+// M 22 = Full Elementalist  --  2F
+// M 23 = Partial Elementalist/Partial Necromancer  --  2P
+// M 24 = Partial Elementalist/Healer  --  2P
+// M 25 = Partial Elementalist/Vowed  --  2P
+// M 33 = Full Necromancer  --
+// M 34 = Partial Necromancer/Healer  --
+// M 35 = Partial Necromancer/Vowed  --
+// A 10 = Partial High Mage  --
+// A 20 = Partial Elementalist  --
+// A 30 = Partial Necromancer  --
+// A 40 = Healer  --
+// A 50 = Vowed  --
