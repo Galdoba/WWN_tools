@@ -10,6 +10,8 @@ const (
 	TraditionHighMagic    = "High Magic"
 	TraditionElementalist = "Elementalist"
 	TraditionNecromancer  = "Necromancer"
+	TraditionHealer       = "Healer"
+	TraditionVowed        = "Vowed"
 
 	HighMage     = 1
 	Elementalist = 2

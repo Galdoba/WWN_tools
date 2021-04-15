@@ -2,6 +2,8 @@ package asset
 
 import (
 	"strings"
+
+	"github.com/Galdoba/utils"
 )
 
 const (
@@ -48,7 +50,7 @@ func (a *Asset) AvailableArts() []string {
 }
 
 func (a *Asset) AddSpell(newSpell string) {
-	a.AssosiatedList1 = append(a.AssosiatedList1, newSpell)
+	a.AssosiatedList1 = utils.AppendUniqueStr(a.AssosiatedList1, newSpell)
 }
 
 func (a *Asset) AddArt(newArt string) {

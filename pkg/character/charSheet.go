@@ -88,10 +88,10 @@ func (chr *Character) StatBlock() string {
 	str += lSep + "STR: " + strAtr + mSep + "DEX: " + dexAtr + mSep + "CON: " + conAtr + mSep + "INT: " + intAtr + mSep + "WIS: " + wisAtr + mSep + "CHA: " + chaAtr + rSep
 	str += lSep + strMod + mSep + dexMod + mSep + conMod + mSep + intMod + mSep + wisMod + mSep + chaMod + rSep
 	str += "+---INFO--------------------------SAVES----------BONUS------------------------+\n"
-	str += lSep + "RACE      : " + trimToLen(chr.Race, 15) + mSep + "Physical: " + "XX" + mSep + " Base Attack : " + "XX" + mSep + "          " + rSep
-	str += lSep + "BACKGROUND: " + trimToLen(chr.onSheetBackground(), 15) + mSep + "Evasion : " + "XX" + mSep + "Melee Attack : " + "XX" + mSep + " Effort XX" + rSep
-	str += lSep + "CLASS     : " + trimToLen(chr.onSheetClass(), 15) + mSep + " Mental : " + "XX" + mSep + "Ranged Attack: " + "XX" + mSep + " HP     XX" + rSep
-	str += lSep + "                           " + mSep + " Luck   : " + "XX" + mSep + " Initiative  : " + "XX" + mSep + "          " + rSep
+	str += lSep + "RACE      : " + trimToLen(chr.Race, 15) + mSep + "Physical: " + chr.Stat["SPhy"] + mSep + " Base Attack : " + chr.Stat["BA"] + mSep + "          " + rSep
+	str += lSep + "BACKGROUND: " + trimToLen(chr.onSheetBackground(), 15) + mSep + "Evasion : " + chr.Stat["SEva"] + mSep + "Melee Attack : " + chr.Stat["MA"] + mSep + " Effort " + chr.Stat["Effort"] + rSep
+	str += lSep + "CLASS     : " + trimToLen(chr.onSheetClass(), 15) + mSep + " Mental : " + chr.Stat["SMen"] + mSep + "Ranged Attack: " + chr.Stat["RA"] + mSep + " HP     " + chr.Stat["HP"] + rSep
+	str += lSep + "                           " + mSep + " Luck   : " + chr.Stat["Lk"] + mSep + " Initiative  : " + chr.Stat["Init"] + mSep + "          " + rSep
 	str += "+---SKILLS--------------------+--------------+---FOCI-------------------------+\n"
 	str += lSep + chr.onSheetSkill(Administer) + mSep + chr.onSheetSkill(Lead) + mSep + chr.onSheetSkill(Sail) + mSep + chr.onSheetFoci(0) + rSep
 	str += lSep + chr.onSheetSkill(Connect) + mSep + chr.onSheetSkill(Magic) + mSep + chr.onSheetSkill(Shoot) + mSep + chr.onSheetFoci(1) + rSep
@@ -107,13 +107,7 @@ func (chr *Character) StatBlock() string {
 		str += lSep + table[i] + rSep
 	}
 	str += "+-----------------------------------------------------------------------------+\n"
-	//| Administer 0 | Lead       0 | Sail       0 | Specialist (Administer)  Lvl 1 |
-	//| Connect    0 | Magic      0 | Shoot      0 | Specialist (Administer)  Lvl 1 |
-	//| Convince   0 | Notice     0 | Sneak      0 | Specialist (Administer)  Lvl 1 |
-	//| Craft      0 | Perform    0 | Stab       0 | Specialist (Administer)  Lvl 1 |
-	//| Exert      0 | Pray       0 | Survive    0 | Specialist (Administer)  Lvl 1 |
-	//| Heal       0 | Punch      0 | Trade      0 | Specialist (Administer)  Lvl 1 |
-	//| Know       0 | Ride       0 | Work       0 | Specialist (Administer)  Lvl 1 |
+
 	return str
 }
 
@@ -130,8 +124,9 @@ func trimToLen(str string, ln int, right ...bool) string {
 			str = " " + str
 		}
 	}
-	for len(str) > ln+1 {
-		str = string([]byte(str)[0 : len(str)-1])
+	for len(str) > ln {
+		str = string([]byte(str)[0 : len(str)-4])
+		str += "..."
 	}
 	return str
 }

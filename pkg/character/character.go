@@ -10,6 +10,7 @@ import (
 	"github.com/Galdoba/WWN_tools/pkg/character/asset"
 	"github.com/Galdoba/WWN_tools/pkg/dice"
 	"github.com/Galdoba/WWN_tools/pkg/magic"
+	"github.com/Galdoba/utils"
 
 	"github.com/Galdoba/devtools/cli/user"
 )
@@ -93,6 +94,7 @@ type Character struct {
 	FlagAuto   bool
 	Dice       *dice.Dicepool
 	Level      int
+	Stat       map[string]string
 	Attribute  map[string]asset.Attribute
 	Background asset.Background
 	Skill      map[string]asset.Skill
@@ -115,15 +117,21 @@ func New(auto bool, seed ...string) Character {
 	}
 	chr.Race = "Human"
 	chr.Level = 1
-	return chr
-}
-
-func (chr *Character) SetAttributes() {
+	chr.Stat = make(map[string]string)
+	for _, val := range []string{"HP", "Effort", "BA", "MA", "RA", "Init", "SPhy", "SEva", "SMen", "Lk"} {
+		chr.Stat[val] = "  "
+	}
 	chr.Attribute = make(map[string]asset.Attribute)
 	atrArrayStr := []string{STR, DEX, CON, INT, WIS, CHA}
 	for _, val := range atrArrayStr {
 		chr.Attribute[val] = asset.NewAttribute(val)
 	}
+
+	return chr
+}
+
+func (chr *Character) SetAttributes() {
+	atrArrayStr := []string{STR, DEX, CON, INT, WIS, CHA}
 	if chr.FlagAuto {
 		to14 := []string{}
 		for k := range chr.Attribute {
@@ -353,6 +361,7 @@ func (chr *Character) SetMagicTraditions() {
 	}
 	chr.Tradition = asset.NewTradition(traditionsPicked)
 	chr.benefitFromTraditions()
+
 }
 
 func (chr *Character) maxLevelSpell() int {
@@ -374,25 +383,37 @@ func (chr *Character) maxLevelSpell() int {
 
 func (chr *Character) benefitFromTraditions() {
 	maxLevel := chr.maxLevelSpell()
+	addSpells := false
+	spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
 	if strings.Contains(chr.Tradition.Name(), "High Mage") {
 		chr.Train(Magic)
-		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
-		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList)) // TODO: избавиться от повторов
-		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+		addSpells = true
 	}
 	if strings.Contains(chr.Tradition.Name(), "Elementalist") {
 		chr.Train(Magic)
-		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
 		spellList = append(spellList, magic.FilterSpellsByTradition(magic.TraditionElementalist, maxLevel)...)
-		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+		addSpells = true
 		chr.Tradition.AddArt("Elemental Resilence")
 		chr.Tradition.AddArt("Elemental Sparks")
 	}
 	if strings.Contains(chr.Tradition.Name(), "Necromancer") {
 		chr.Train(Magic)
-		spellList := magic.FilterSpellsByTradition(magic.TraditionHighMagic, maxLevel)
 		spellList = append(spellList, magic.FilterSpellsByTradition(magic.TraditionNecromancer, maxLevel)...)
-		chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+		addSpells = true
+	}
+	if addSpells {
+		for len(chr.Tradition.AvailableSpells()) < 4 {
+			spellList = cleanOptions(spellList, chr.Tradition.AvailableSpells())
+			switch chr.FlagAuto {
+			case true:
+				chr.Tradition.AddSpell(chr.Dice.RollFromList(spellList))
+			case false:
+				n := strconv.Itoa(len(chr.Tradition.AvailableSpells()) + 1)
+				chr.Tradition.AddSpell(spellList[chooseOption("Select Spell ("+n+"/4):", spellList)])
+				fmt.Print(chr.Sheet())
+			}
+
+		}
 	}
 	if strings.Contains(chr.Tradition.Name(), "Healer") {
 		chr.Train(Heal)
@@ -404,37 +425,71 @@ func (chr *Character) benefitFromTraditions() {
 		chr.Tradition.AddArt("Unarmed Might")
 		chr.Tradition.AddArt("Unarmored Defense")
 	}
-}
-
-/*
-для заклинаний:
-смотрим уровень
-смотрим традицию
-по каждой найденной традиции учим n заклинаний из списка доступных
-*/
-
-/*
-switch Tradition {
-case Full High Mage:
-	add full bonus
-case Full Elementalist:
-	add full bonus
-case Full Necromancer:
-	add full bonus
-default:
-	if Tradition Contains {
-		add partial bonus
+	artList := []string{} //очень монструозно и тупо - в перспективе этот блок уйдет когда
+	//					  //арты будут учиться на повышении уровня.
+	if strings.Contains(chr.Tradition.Name(), "High Mage") {
+		artList = magic.ArtListByTradition(magic.TraditionHighMagic)
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
 	}
-}
-learn spells:
-for i := 0; i < chr.Level {
-	maxLevel := from chr.Level and Tradition
-	constructList(Tradition)
-	pick := from chr.Tradition
+	if strings.Contains(chr.Tradition.Name(), "Elementalist") {
+		artList = magic.ArtListByTradition(magic.TraditionElementalist)
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
+	}
+	if strings.Contains(chr.Tradition.Name(), "Necromancer") {
+		artList = magic.ArtListByTradition(magic.TraditionNecromancer)
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
+	}
+	if strings.Contains(chr.Tradition.Name(), "Healer") {
+		artList = magic.ArtListByTradition(magic.TraditionHealer)
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
+	}
+	if strings.Contains(chr.Tradition.Name(), "Vowed") {
+		artList = magic.ArtListByTradition(magic.TraditionVowed)
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
+	}
+	if strings.Contains(chr.Tradition.Name(), FullHighMage) {
+		artList = magic.ArtListByTradition(magic.TraditionHighMagic)
+		artList = cleanOptions(artList, chr.Tradition.AvailableArts())
+		switch chr.FlagAuto {
+		case true:
+			chr.Tradition.AddArt(chr.Dice.RollFromList(artList))
+		case false:
+			chr.Tradition.AddArt(artList[chooseOption("Choose Art:", artList)])
+		}
+		fmt.Print(chr.Sheet())
+	}
 
 }
-
-*/
 
 func traditionsListDynamic(mtpLeft int) []string {
 	switch mtpLeft {
@@ -455,6 +510,50 @@ func traditionsListDynamic(mtpLeft int) []string {
 			Vowed,
 		}
 	}
+}
+
+////////////////////////FINAL TOUCH
+func (chr *Character) SetHitPoints() {
+	hdMod := chr.Attribute[CON].Modifer()
+	chr.Stat["BA"] = " 0"
+	switch chr.Class.Name() {
+	case Warrior, AdventurerEW, AdventurerMW:
+		hdMod = hdMod + (chr.Level * 2)
+		chr.Stat["BA"] = "+1"
+	case Expert, AdventurerEM:
+		hdMod = hdMod + (chr.Level * 0)
+	case Mage:
+		hdMod = hdMod + (chr.Level * -1)
+	}
+	if _, ok := chr.Foci[asset.DieHard]; ok {
+		hdMod += (2 * chr.Level)
+	}
+	hp := chr.Dice.RollNext("1d6").DM(hdMod).Sum()
+	if hp < 1 {
+		hp = 1
+	}
+	chr.Stat["HP"] = strconv.Itoa(hp)
+	for len(chr.Stat["HP"]) < 2 {
+		chr.Stat["HP"] = " " + chr.Stat["HP"]
+	}
+	chr.Stat["Init"] = strconv.Itoa(chr.Attribute[DEX].Modifer())
+	chr.Stat["MA"] = strconv.Itoa(chr.Attribute[STR].Modifer())
+	chr.Stat["RA"] = strconv.Itoa(chr.Attribute[DEX].Modifer())
+	chr.Stat["Effort"] = " 0"
+	if _, ok := chr.Skill[Magic]; ok {
+		chr.Stat["Effort"] = strconv.Itoa(utils.Max(chr.Attribute[INT].Modifer(), chr.Attribute[CHA].Modifer()) + 1 + chr.Skill[Magic].Level())
+	}
+
+	chr.Stat["SPhy"] = strconv.Itoa(15 - utils.Max(chr.Attribute[STR].Modifer(), chr.Attribute[CON].Modifer()))
+	chr.Stat["SEva"] = strconv.Itoa(15 - utils.Max(chr.Attribute[DEX].Modifer(), chr.Attribute[INT].Modifer()))
+	chr.Stat["SMen"] = strconv.Itoa(15 - utils.Max(chr.Attribute[WIS].Modifer(), chr.Attribute[CHA].Modifer()))
+	chr.Stat["Lk"] = strconv.Itoa(15)
+	for k := range chr.Stat {
+		for len(chr.Stat[k]) < 2 {
+			chr.Stat[k] = " " + chr.Stat[k]
+		}
+	}
+
 }
 
 ////////////////////////HELPERS
@@ -636,4 +735,20 @@ func expertFociList() []string {
 		"Trapmaster",
 		"Well Met",
 	}
+}
+
+func cleanOptions(options, picked []string) []string {
+	valid := []string{}
+	for _, val := range options {
+		met := false
+		for _, test := range picked {
+			if val == test {
+				met = true
+			}
+		}
+		if !met {
+			valid = append(valid, val)
+		}
+	}
+	return valid
 }
