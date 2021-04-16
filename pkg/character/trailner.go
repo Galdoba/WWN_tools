@@ -40,20 +40,13 @@ func (chr *Character) Train(skl string) {
 }
 
 func (chr *Character) handleSpecial(spec string) []string {
-	automod := chr.FlagAuto
 	addon := []string{}
 	switch spec {
 	default:
 		panic("Unknown Special: " + spec)
 	case "Any Combat":
 		anyCombatList := []string{"Stab", "Shoot", "Punch"}
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(anyCombatList))
-			return addon
-		}
-		choise := chooseOption("'Any Combat' - pick one:", anyCombatList)
-		addon = append(addon, anyCombatList[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose combat skill:", anyCombatList))
 	case "Non-Combat":
 		nonCombatList := []string{}
 		for _, val := range allSkills() {
@@ -63,82 +56,28 @@ func (chr *Character) handleSpecial(spec string) []string {
 			}
 			nonCombatList = append(nonCombatList, val)
 		}
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(nonCombatList))
-			return addon
-		}
-		choise := chooseOption("'Non-Combat' - pick one:", nonCombatList)
-		addon = append(addon, nonCombatList[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose non-combat skill:", nonCombatList))
 	case "Any Skill":
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(allSkills()))
-			return addon
-		}
-		choise := chooseOption("'Any Skill' - pick one:", allSkills())
-		addon = append(addon, allSkills()[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose any skill:", allSkills()))
 	case "+1 Any Stat":
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(allAttributes()))
-			return addon
-		}
-		choise := chooseOption("'+1 Any Stat' - pick one:", allAttributes())
-		addon = append(addon, allAttributes()[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose attribute:", allAttributes()))
 	case "+2 Physical":
 		physicalList := []string{STR, DEX, CON}
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(physicalList))
-			addon = append(addon, chr.Dice.RollFromList(physicalList))
-			return addon
-		}
-		choise := chooseOption("'+2 Physical' - pick one:", physicalList)
-		addon = append(addon, physicalList[choise])
-		choise = chooseOption("and another one:", physicalList)
-		addon = append(addon, physicalList[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose physical attribute:", physicalList))
+		addon = append(addon, chr.ChooseOption("...and another one:", physicalList))
 	case "+2 Mental":
 		mentalList := []string{INT, WIS, CHA}
-		if automod {
-			addon = append(addon, chr.Dice.RollFromList(mentalList))
-			addon = append(addon, chr.Dice.RollFromList(mentalList))
-			return addon
-		}
-		choise := chooseOption("'+2 Mental' - pick one:", mentalList)
-		addon = append(addon, mentalList[choise])
-		choise = chooseOption("and another one:", mentalList)
-		addon = append(addon, mentalList[choise])
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose mental attribute:", mentalList))
+		addon = append(addon, chr.ChooseOption("...and another one:", mentalList))
 	case "Perform or Sneak":
 		skillsOption := []string{"Perform", "Sneak"}
-		switch automod {
-		case true:
-			addon = append(addon, chr.Dice.RollFromList(skillsOption))
-		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption)
-			addon = append(addon, skillsOption[pick])
-		}
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose bonus skill", skillsOption))
 	case "Punch or Stab":
 		skillsOption := []string{"Punch", "Stab"}
-		switch automod {
-		case true:
-			addon = append(addon, chr.Dice.RollFromList(skillsOption))
-		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption)
-			addon = append(addon, skillsOption[pick])
-		}
+		addon = append(addon, chr.ChooseOption("Choose bonus skill", skillsOption))
 	case "Specialist":
 		skillsOption := specialistSkills()
-		switch automod {
-		case true:
-			addon = append(addon, chr.Dice.RollFromList(skillsOption))
-		case false:
-			pick := chooseOption("Choose bonus skill:", skillsOption)
-			addon = append(addon, skillsOption[pick])
-		}
-		return addon
+		addon = append(addon, chr.ChooseOption("Choose bonus skill", skillsOption))
 	}
 	return addon
 }

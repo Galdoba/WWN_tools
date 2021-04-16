@@ -183,88 +183,50 @@ func (chr *Character) SetAttributes() {
 
 ////////////////////////Backgrounds
 func (chr *Character) SetBackground() {
-	if chr.FlagAuto {
-		bkg := chr.Dice.RollFromList(allBackgrounds())
-		chr.Background = asset.NewBackground(bkg)
-		return
-	}
 	validOptions := allBackgrounds()
 	validOptions = append(validOptions, "Naaah... just roll it")
-	chsen := chooseOption("Select background for a character:\n*check description and bonuses in CRB p.12-17", validOptions)
-	bkg := ""
-	if chsen >= len(allBackgrounds()) {
-		bkg = chr.Dice.RollFromList(allBackgrounds())
-	} else {
-		bkg = allBackgrounds()[chsen]
+	chsen := chr.ChooseOption("Select background for a character:\n*check description and bonuses in CRB p.12-17", validOptions)
+	if chsen == "Naaah... just roll it" {
+		chsen = chr.Dice.RollFromList(allBackgrounds())
 	}
-	chr.Background = asset.NewBackground(bkg)
+	chr.Background = asset.NewBackground(chsen)
 }
 
 ////////////////////////SKILLS
 func (chr *Character) SetSkills() {
 	chr.Skill = make(map[string]asset.Skill)
 	freeSkill := chr.Background.FreeSkill()
-	method := 0
+	method := ""
 	chr.Train(freeSkill)
-	if chr.FlagAuto {
-		method = chr.Dice.RollNext("1d3").Sum()
-	}
-	if method == 0 {
-		method = chooseOption("Pick one of the three options below", []string{"Gain the background’s listed quick skills", "Pick two skills from the background’s Learning table", "Roll three times, splitting the rolls as you wish between the Growth and Learning tables for your background"}) + 1
-	}
+	options := []string{"Gain the background’s listed quick skills", "Pick two skills from the background’s Learning table", "Roll three times, splitting the rolls as you wish between the Growth and Learning tables for your background"}
+	method = chr.ChooseOption("What will you do?", options)
 	switch method {
-	case 1:
+	case options[0]:
 		quickSkills := chr.Background.QuickSkills()
 		for _, skl := range quickSkills {
 			chr.Train(skl)
 		}
 		return
-	case 2:
+	case options[1]:
 		learn := chr.Background.Learning()
 		learn = pickValid(learn)
 		chosen := []string{}
-		switch chr.FlagAuto {
-		case true:
-			chosen = append(chosen, chr.Dice.RollFromList(learn))
-			chosen = append(chosen, chr.Dice.RollFromList(learn))
-		case false:
-			for len(chosen) < 2 {
-				c := chooseOption(strconv.Itoa(len(chosen)+1)+"/2: "+"Pick one skill from options below ", learn)
-				chosen = append(chosen, learn[c])
-			}
-		}
+		chosen = append(chosen, chr.ChooseOption("Chose first skill:", learn))
+		chosen = append(chosen, chr.ChooseOption("Chose second skill:", learn))
 		for _, skl := range chosen {
 			chr.Train(skl)
 		}
 		return
-	case 3:
+	case options[2]:
 		chosen := []string{}
-		switch chr.FlagAuto {
-		case true:
-			for len(chosen) < 3 {
-				switch chr.Dice.RollNext("1d2").Sum() {
-				case 1:
-					chosen = append(chosen, chr.Dice.RollFromList(chr.Background.Growth()))
-				case 2:
-					chosen = append(chosen, chr.Dice.RollFromList(chr.Background.Learning()))
-				}
-			}
-			for _, skl := range chosen {
-				chr.Train(skl)
-			}
-		case false:
-			for i := 1; i < 4; i++ {
-				fmt.Println("Roll", i, "of 3:")
-				options := []string{"Growth", "Learning"}
-				c := chooseOption("Pick table you with to roll:"+chr.Background.Tables(), options)
-				//chosen = append(chosen, options[c])
-				switch options[c] {
-				case "Growth":
-					chr.Train(chr.Dice.RollFromList(chr.Background.Growth()))
-				case "Learning":
-					chr.Train(chr.Dice.RollFromList(chr.Background.Learning()))
-				}
-				//fmt.Println(chr.Sheet())
+		for len(chosen) < 3 {
+			i := len(chosen)
+			chosen = append(chosen, chr.ChooseOption("Select from table :"+chr.Background.Tables(), []string{"Growth", "Learning"}))
+			switch chosen[i] {
+			case "Growth":
+				chr.Train(chr.Dice.RollFromList(chr.Background.Growth()))
+			case "Learning":
+				chr.Train(chr.Dice.RollFromList(chr.Background.Learning()))
 			}
 		}
 	}
@@ -751,4 +713,16 @@ func cleanOptions(options, picked []string) []string {
 		}
 	}
 	return valid
+}
+
+func (chr *Character) ChooseOption(msg string, options []string) string {
+	decision := "NOT MADE"
+	switch chr.FlagAuto {
+	case true:
+		decision = chr.Dice.RollFromList(options)
+	case false:
+		ch := chooseOption(msg, options)
+		decision = options[ch]
+	}
+	return decision
 }
